@@ -3,10 +3,10 @@ package app
 import (
 	"context"
 	"flag"
-	"io"
 	"log"
 	"net/http"
 
+	"github.com/knoxie-s/notification-service/internal/api"
 	"github.com/knoxie-s/notification-service/internal/closer"
 	"github.com/knoxie-s/notification-service/internal/config"
 )
@@ -74,14 +74,10 @@ func (a *App) initServiceProvider(ctx context.Context) error {
 	return nil
 }
 
-func ping(w http.ResponseWriter, r *http.Request) {
-	io.WriteString(w, "pong...\n")
-}
-
 func (a *App) initHTTPServer(ctx context.Context) error {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/ping", ping)
+	api.RegisterRoutes(mux)
 
 	a.httpServer = &http.Server{
 		Addr:    a.serviceProvider.HTTPConfig().Address(),
