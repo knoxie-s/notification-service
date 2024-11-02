@@ -1,96 +1,46 @@
 package api
 
 import (
-	"crypto/rand"
 	"encoding/json"
-	"log"
-	"math/big"
 	"net/http"
-	"sync"
-	"time"
+
+	"github.com/knoxie-s/notification-service/internal/api/model"
+	"github.com/knoxie-s/notification-service/internal/converter"
 )
 
-// Notification data
-type Notification struct {
-	ID        int64            `json:"id"`
-	Info      NotificationInfo `json:"info"`
-	CreatedAt *time.Time       `json:"createdAt"`
-	UpdatedAt *time.Time       `json:"updatedAt"`
+func RegisterRoutes(mux *http.ServeMux, impl *Implementation) {
+	mux.HandleFunc("/notification", impl.handleNotification)
 }
 
-type NotificationInfo struct {
-	OrderType  string `json:"orderType"`
-	SessionID  string `json:"sessionId"`
-	Card       string `json:"card"`
-	WebsiteURL string `json:"websiteUrl"`
-	EventDate  string `json:"eventDate"`
-}
-
-type Response struct {
-	Status  string `json:"status"`
-	Message string `json:"message"`
-	Data    any    `json:"data,omitempty"`
-}
-
-// Cache to store Notification data
-type Cache struct {
-	elems map[int64]*Notification
-	m     sync.Mutex
-}
-
-var notificationCache = &Cache{
-	elems: make(map[int64]*Notification),
-}
-
-func handleNotification(w http.ResponseWriter, r *http.Request) {
+func (impl *Implementation) handleNotification(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	var notificationInfo NotificationInfo
+	var notificationRequest model.NotificationRequest
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&notificationInfo); err != nil {
+	if err := decoder.Decode(&notificationRequest); err != nil {
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
 	}
 
-	n, err := rand.Int(rand.Reader, big.NewInt(27))
+	notification, err := impl.notificationService.Create(r.Context(), converter.ToNotificationInfoFromAPI(&notificationRequest))
 	if err != nil {
-		log.Printf("Failed to generate user id: %v", err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
 	}
 
-	id := n.Int64()
-	now := time.Now()
-
-	notification := &Notification{
-		ID:        id,
-		Info:      notificationInfo,
-		CreatedAt: &now,
-	}
-
-	notificationCache.m.Lock()
-	notificationCache.elems[notification.ID] = notification
-	notificationCache.m.Unlock()
-
-	//response := fmt.Sprintf("Received Notification: %+v", notification)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 
-	response := Response{
+	response := model.Response{
 		Status:  "success",
 		Message: "notification received",
 		Data:    notification,
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		http.Error(w, "Failed to encode note data", http.StatusInternalServerError)
+		http.Error(w, "Failed to encode notification data", http.StatusInternalServerError)
 		return
 	}
-}
-
-func RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/notification", handleNotification)
 }

@@ -77,7 +77,7 @@ func (a *App) initServiceProvider(ctx context.Context) error {
 func (a *App) initHTTPServer(ctx context.Context) error {
 	mux := http.NewServeMux()
 
-	api.RegisterRoutes(mux)
+	api.RegisterRoutes(mux, a.serviceProvider.NotificationAPI(ctx))
 
 	a.httpServer = &http.Server{
 		Addr:    a.serviceProvider.HTTPConfig().Address(),
