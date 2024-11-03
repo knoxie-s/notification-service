@@ -18,3 +18,9 @@ type NotificationInfo struct {
 	WebsiteURL string `json:"websiteURL"`
 	EventDate  string `json:"eventDate"`
 }
+
+// NotificationFilter ...
+type NotificationFilter struct {
+	SentToClient bool
+	Limit        int
+}

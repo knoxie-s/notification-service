@@ -12,9 +12,10 @@ type Notification struct {
 
 // NotificationInfo data
 type NotificationInfo struct {
-	OrderType  string
-	SessionID  string
-	Card       string
-	WebsiteURL string
-	EventDate  string
+	OrderType    string
+	SessionID    string
+	Card         string
+	WebsiteURL   string
+	EventDate    string
+	SentToClient bool
 }

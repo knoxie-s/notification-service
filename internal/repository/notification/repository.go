@@ -24,7 +24,7 @@ func NewRepository() repository.NotificationRepository {
 // Cache to store Notification data
 type Cache struct {
 	elems map[int64]*modelRepo.Notification
-	m     sync.Mutex
+	m     sync.RWMutex
 }
 
 var notificationCache = &Cache{
@@ -55,4 +55,25 @@ func (r *repo) Create(ctx context.Context, info *model.NotificationInfo) (*model
 	notificationCache.m.Unlock()
 
 	return converter.ToNotificationFromRepo(notification), nil
+}
+
+// Get simple notification filter with no search optimization
+func (r *repo) Get(_ context.Context, filter model.NotificationFilter) ([]*model.Notification, error) {
+	notifications := make([]*model.Notification, 0, filter.Limit)
+
+	notificationCache.m.RLock()
+	defer notificationCache.m.RUnlock()
+
+	for _, ntf := range notificationCache.elems {
+		switch {
+		case filter.Limit == 0:
+			break
+		case ntf.Info.SentToClient == false:
+			notifications = append(notifications, converter.ToNotificationFromRepo(ntf))
+			filter.Limit--
+		default:
+		}
+	}
+
+	return notifications, nil
 }
