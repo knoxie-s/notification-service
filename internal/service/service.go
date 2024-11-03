@@ -8,4 +8,5 @@ import (
 
 type NotificationService interface {
 	Create(ctx context.Context, notificationInfo *model.NotificationInfo) (*model.Notification, error)
+	SendNotificationsToClients(ctx context.Context) error
 }

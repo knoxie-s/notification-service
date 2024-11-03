@@ -68,7 +68,7 @@ func (r *repo) Get(_ context.Context, filter model.NotificationFilter) ([]*model
 		switch {
 		case filter.Limit == 0:
 			break
-		case ntf.Info.SentToClient == false:
+		case ntf.Info.SentToClient == filter.SentToClient:
 			notifications = append(notifications, converter.ToNotificationFromRepo(ntf))
 			filter.Limit--
 		default:
@@ -76,4 +76,16 @@ func (r *repo) Get(_ context.Context, filter model.NotificationFilter) ([]*model
 	}
 
 	return notifications, nil
+}
+
+func (r *repo) UpdateSendToClientStatus(_ context.Context, id int64) error {
+	if id <= 0 {
+		return fmt.Errorf("notification id must be provided")
+	}
+
+	notificationCache.m.Lock()
+	notificationCache.elems[id].Info.SentToClient = true
+	notificationCache.m.Unlock()
+
+	return nil
 }

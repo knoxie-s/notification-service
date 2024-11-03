@@ -13,7 +13,8 @@ import (
 )
 
 type serviceProvider struct {
-	httpConfig config.HTTPConfig
+	httpConfig   config.HTTPConfig
+	workerConfig config.WorkerConfig
 
 	notificationRepository repository.NotificationRepository
 	notificationService    service.NotificationService
@@ -37,6 +38,19 @@ func (s *serviceProvider) HTTPConfig() config.HTTPConfig {
 	return s.httpConfig
 }
 
+func (s *serviceProvider) WorkerConfig() config.WorkerConfig {
+	if s.workerConfig == nil {
+		cfg, err := config.NewWorkerConfig()
+		if err != nil {
+			log.Fatalf("failed to get http config: %s", err.Error())
+		}
+
+		s.workerConfig = cfg
+	}
+
+	return s.workerConfig
+}
+
 func (s *serviceProvider) NotificationRepository(ctx context.Context) repository.NotificationRepository {
 	if s.notificationRepository == nil {
 		s.notificationRepository = notificationRepository.NewRepository()
@@ -47,7 +61,7 @@ func (s *serviceProvider) NotificationRepository(ctx context.Context) repository
 
 func (s *serviceProvider) NotificationService(ctx context.Context) service.NotificationService {
 	if s.notificationService == nil {
-		s.notificationService = notificationService.NewService(s.NotificationRepository(ctx))
+		s.notificationService = notificationService.NewService(s.NotificationRepository(ctx), s.WorkerConfig())
 	}
 
 	return s.notificationService
@@ -59,4 +73,8 @@ func (s *serviceProvider) NotificationAPI(ctx context.Context) *api.Implementati
 	}
 
 	return s.notificationImpl
+}
+
+func (s *serviceProvider) WorkerSendNotificationsToClients(ctx context.Context) error {
+	return s.notificationService.SendNotificationsToClients(ctx)
 }

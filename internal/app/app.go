@@ -53,7 +53,7 @@ func (a *App) Run(ctx context.Context) error {
 
 		err := a.runHTTPServer(ctx)
 		if err != nil {
-			log.Fatalf("failed to run HTTP server: %v", err)
+			log.Printf("failed to run HTTP server: %v", err)
 		}
 	}()
 
@@ -62,7 +62,7 @@ func (a *App) Run(ctx context.Context) error {
 
 		err := a.runWorker(ctx)
 		if err != nil {
-			log.Fatalf("failed to run worker: %v", err)
+			log.Printf("failed to run worker: %v", err)
 		}
 	}()
 
@@ -142,7 +142,7 @@ func (a *App) runWorker(ctx context.Context) error {
 	defer cancel()
 	go gracefulShutdown(ctx, cancel)
 
-	ticker := time.NewTicker(5 * time.Second)
+	ticker := time.NewTicker(time.Duration(a.serviceProvider.workerConfig.GetInterval()) * time.Second)
 	defer ticker.Stop()
 
 	for {
@@ -152,6 +152,10 @@ func (a *App) runWorker(ctx context.Context) error {
 			return nil
 		case <-ticker.C:
 			log.Println("Starting notification worker cycle")
+			err := a.serviceProvider.WorkerSendNotificationsToClients(ctx)
+			if err != nil {
+				return err
+			}
 		}
 	}
 }
