@@ -2,6 +2,7 @@ package notification
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"sync"
 
@@ -18,6 +19,8 @@ func (s *serv) SendNotificationsToClients(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+
+	fmt.Println(notifications)
 
 	wg := sync.WaitGroup{}
 	sem := make(chan struct{}, s.workerConfig.GetCount())

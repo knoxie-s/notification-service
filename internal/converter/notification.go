@@ -5,6 +5,7 @@ import (
 	"github.com/knoxie-s/notification-service/internal/model"
 )
 
+// ToNotificationInfoFromAPI convert API to service
 func ToNotificationInfoFromAPI(notification *modelAPI.NotificationRequest) *model.NotificationInfo {
 	return &model.NotificationInfo{
 		OrderType:  notification.OrderType,

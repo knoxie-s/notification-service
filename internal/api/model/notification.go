@@ -1,5 +1,6 @@
 package model
 
+// NotificationRequest client request payload
 type NotificationRequest struct {
 	OrderType  string `json:"orderType"`
 	SessionID  string `json:"sessionID"`

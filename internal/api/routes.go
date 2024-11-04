@@ -8,6 +8,7 @@ import (
 	"github.com/knoxie-s/notification-service/internal/converter"
 )
 
+// RegisterRoutes http
 func RegisterRoutes(mux *http.ServeMux, impl *Implementation) {
 	mux.HandleFunc("/notification", impl.handleNotification)
 }

@@ -5,6 +5,7 @@ import (
 	modelRepo "github.com/knoxie-s/notification-service/internal/repository/notification/model"
 )
 
+// ToNotificationFromRepo convert repo to service
 func ToNotificationFromRepo(notification *modelRepo.Notification) *model.Notification {
 	return &model.Notification{
 		ID:        notification.ID,
@@ -14,6 +15,7 @@ func ToNotificationFromRepo(notification *modelRepo.Notification) *model.Notific
 	}
 }
 
+// ToNotificationInfoFromRepo convert repo to service
 func ToNotificationInfoFromRepo(info modelRepo.NotificationInfo) model.NotificationInfo {
 	return model.NotificationInfo{
 		OrderType:  info.OrderType,
@@ -24,6 +26,7 @@ func ToNotificationInfoFromRepo(info modelRepo.NotificationInfo) model.Notificat
 	}
 }
 
+// ToNotificationInfoFromService convert service to repo
 func ToNotificationInfoFromService(info model.NotificationInfo) modelRepo.NotificationInfo {
 	return modelRepo.NotificationInfo{
 		OrderType:  info.OrderType,

@@ -51,7 +51,7 @@ func (s *serviceProvider) WorkerConfig() config.WorkerConfig {
 	return s.workerConfig
 }
 
-func (s *serviceProvider) NotificationRepository(ctx context.Context) repository.NotificationRepository {
+func (s *serviceProvider) NotificationRepository(_ context.Context) repository.NotificationRepository {
 	if s.notificationRepository == nil {
 		s.notificationRepository = notificationRepository.NewRepository()
 	}

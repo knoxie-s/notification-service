@@ -12,6 +12,7 @@ const (
 	workerNotificationLimitEnvName = "WORKER_NOTIFICATION_SEND_LIMIT_PER_THREAD"
 )
 
+// WorkerConfig for worker config
 type WorkerConfig interface {
 	GetCount() int
 	GetInterval() int
@@ -24,6 +25,7 @@ type workerConfig struct {
 	notificationLimit string
 }
 
+// NewWorkerConfig construct worker config
 func NewWorkerConfig() (WorkerConfig, error) {
 	count := os.Getenv(workerCountEnvName)
 	if len(count) == 0 {

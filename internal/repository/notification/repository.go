@@ -17,6 +17,7 @@ import (
 type repo struct {
 }
 
+// NewRepository construct notification repository
 func NewRepository() repository.NotificationRepository {
 	return &repo{}
 }
@@ -31,7 +32,8 @@ var notificationCache = &Cache{
 	elems: make(map[int64]*modelRepo.Notification),
 }
 
-func (r *repo) Create(ctx context.Context, info *model.NotificationInfo) (*model.Notification, error) {
+// Create store notification
+func (r *repo) Create(_ context.Context, info *model.NotificationInfo) (*model.Notification, error) {
 	if info == nil {
 		return nil, fmt.Errorf("please provide notification info")
 	}
@@ -78,6 +80,7 @@ func (r *repo) Get(_ context.Context, filter model.NotificationFilter) ([]*model
 	return notifications, nil
 }
 
+// UpdateSendToClientStatus notification sent to client status
 func (r *repo) UpdateSendToClientStatus(_ context.Context, id int64) error {
 	if id <= 0 {
 		return fmt.Errorf("notification id must be provided")

@@ -11,6 +11,7 @@ type serv struct {
 	workerConfig           config.WorkerConfig
 }
 
+// NewService construct NotificationService
 func NewService(
 	notificationRepository repository.NotificationRepository,
 	workerConfig config.WorkerConfig,

@@ -13,8 +13,8 @@ import (
 	"time"
 
 	"github.com/knoxie-s/notification-service/internal/api"
-	"github.com/knoxie-s/notification-service/internal/closer"
 	"github.com/knoxie-s/notification-service/internal/config"
+	"github.com/knoxie-s/notification-service/pkg/closer"
 )
 
 var configPath string
@@ -23,11 +23,13 @@ func init() {
 	flag.StringVar(&configPath, "config-path", ".env", "path to config file")
 }
 
+// App app
 type App struct {
 	serviceProvider *serviceProvider
 	httpServer      *http.Server
 }
 
+// NewApp construct App
 func NewApp(ctx context.Context) (*App, error) {
 	app := &App{}
 
@@ -39,6 +41,7 @@ func NewApp(ctx context.Context) (*App, error) {
 	return app, nil
 }
 
+// Run servers
 func (a *App) Run(ctx context.Context) error {
 	defer func() {
 		closer.CloseAll()
@@ -88,7 +91,7 @@ func (a *App) initDeps(ctx context.Context) error {
 	return nil
 }
 
-func (a *App) initConfig(ctx context.Context) error {
+func (a *App) initConfig(_ context.Context) error {
 	err := config.Load(configPath)
 	if err != nil {
 		return err
@@ -97,7 +100,7 @@ func (a *App) initConfig(ctx context.Context) error {
 	return nil
 }
 
-func (a *App) initServiceProvider(ctx context.Context) error {
+func (a *App) initServiceProvider(_ context.Context) error {
 	a.serviceProvider = newServiceProvider()
 
 	return nil
@@ -109,8 +112,9 @@ func (a *App) initHTTPServer(ctx context.Context) error {
 	api.RegisterRoutes(mux, a.serviceProvider.NotificationAPI(ctx))
 
 	a.httpServer = &http.Server{
-		Addr:    a.serviceProvider.HTTPConfig().Address(),
-		Handler: mux,
+		ReadHeaderTimeout: 5 * time.Second,
+		Addr:              a.serviceProvider.HTTPConfig().Address(),
+		Handler:           mux,
 	}
 
 	return nil
