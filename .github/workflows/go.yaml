@@ -6,11 +6,6 @@ on:
   pull_request:
     branches: [ main, master ]
 
-env:
-  REGISTRY: "dept47"
-  IMAGE_NAME: "micro-auth"
-  CONTAINER_NAME: "micro-auth-container"
-
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
