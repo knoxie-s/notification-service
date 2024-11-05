@@ -10,10 +10,10 @@ import (
 
 // RegisterRoutes http
 func RegisterRoutes(mux *http.ServeMux, impl *Implementation) {
-	mux.HandleFunc("/notification", impl.handleNotification)
+	mux.HandleFunc("/notification", impl.CreateNotification)
 }
 
-func (impl *Implementation) handleNotification(w http.ResponseWriter, r *http.Request) {
+func (impl *Implementation) CreateNotification(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
 		return
@@ -29,6 +29,7 @@ func (impl *Implementation) handleNotification(w http.ResponseWriter, r *http.Re
 	notification, err := impl.notificationService.Create(r.Context(), converter.ToNotificationInfoFromAPI(&notificationRequest))
 	if err != nil {
 		http.Error(w, "internal server error", http.StatusInternalServerError)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
