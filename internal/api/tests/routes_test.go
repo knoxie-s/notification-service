@@ -115,7 +115,9 @@ func TestCreateNotification(t *testing.T) {
 			API.CreateNotification(tt.args.w, tt.args.req)
 
 			resp := tt.args.w.(*httptest.ResponseRecorder).Result()
-			defer resp.Body.Close()
+			defer func() {
+				_ = resp.Body.Close()
+			}()
 
 			require.Equal(t, tt.expectedStatus, resp.StatusCode)
 
